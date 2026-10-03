@@ -3,3 +3,7 @@ mobile.png
 check.cjs
 *.tar.gz
 .sites-runtime/
+
+node_modules/
+.env
+.dev.vars

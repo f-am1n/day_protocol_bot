@@ -1,0 +1,6 @@
+{
+  "name": "ritm-telegram",
+  "private": true,
+  "scripts": {"build":"node scripts/build.cjs","db:generate":"drizzle-kit generate","test":"node --test core.test.cjs analytics.test.cjs telegram.test.cjs"},
+  "devDependencies": {"drizzle-kit":"0.31.10","drizzle-orm":"0.45.2"}
+}

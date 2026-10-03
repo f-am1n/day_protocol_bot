@@ -23,21 +23,21 @@
       (c.unit === undefined || (typeof c.unit === 'string' && c.unit.length <= 16)) &&
       (c.step === undefined || integer(c.step, 1, 100000));
   }
-  function validate(s) {
+  function validate(s, asOf = today()) {
     if (!object(s) || (s.version !== undefined && s.version !== 2) || !Array.isArray(s.habits) || s.habits.length > 500 || !object(s.logs)) return false;
     const ids = new Set();
     for (const h of s.habits) {
       if (!object(h) || typeof h.id !== 'string' || !/^[a-zA-Z0-9-]{1,100}$/.test(h.id) || ['constructor', 'prototype', '__proto__'].includes(h.id) || ids.has(h.id)) return false;
       ids.add(h.id);
-      if (typeof h.name !== 'string' || !h.name.trim() || h.name.length > 70 || typeof h.icon !== 'string' || h.icon.length > 12 || !periods.includes(h.period) || !isDate(h.created) || h.created > today() || !validConfig(h)) return false;
-      if (h.archivedAt != null && (!isDate(h.archivedAt) || h.archivedAt < h.created || h.archivedAt > today())) return false;
+      if (typeof h.name !== 'string' || !h.name.trim() || h.name.length > 70 || typeof h.icon !== 'string' || h.icon.length > 12 || !periods.includes(h.period) || !isDate(h.created) || h.created > asOf || !validConfig(h)) return false;
+      if (h.archivedAt != null && (!isDate(h.archivedAt) || h.archivedAt < h.created || h.archivedAt > asOf)) return false;
       if (h.revisions !== undefined) {
         if (!Array.isArray(h.revisions) || h.revisions.length > 1000 || !h.revisions.length || h.revisions[0].from !== h.created) return false;
         if (!h.revisions.every((r, i) => validConfig(r) && isDate(r.from) && (!i || r.from > h.revisions[i - 1].from))) return false;
       }
-      if (h.pauses !== undefined && (!Array.isArray(h.pauses) || h.pauses.length > 1000 || !h.pauses.every((p, i) => object(p) && isDate(p.from) && p.from >= h.created && p.from <= today() && (p.to === null || (isDate(p.to) && p.to >= p.from && p.to <= today())) && (!i || (h.pauses[i - 1].to !== null && p.from >= h.pauses[i - 1].to))))) return false;
+      if (h.pauses !== undefined && (!Array.isArray(h.pauses) || h.pauses.length > 1000 || !h.pauses.every((p, i) => object(p) && isDate(p.from) && p.from >= h.created && p.from <= asOf && (p.to === null || (isDate(p.to) && p.to >= p.from && p.to <= asOf)) && (!i || (h.pauses[i - 1].to !== null && p.from >= h.pauses[i - 1].to))))) return false;
     }
-    return Object.entries(s.logs).every(([date, logs]) => isDate(date) && date <= today() && object(logs) && Object.entries(logs).every(([id, amount]) => ids.has(id) && integer(amount, 0, 100000)));
+    return Object.entries(s.logs).every(([date, logs]) => isDate(date) && date <= asOf && object(logs) && Object.entries(logs).every(([id, amount]) => ids.has(id) && integer(amount, 0, 100000)));
   }
   const config = h => ({type: h.type, target: h.target, schedule: h.schedule, days: [...h.days], frequency: h.frequency, unit: h.unit || (h.type === 'minutes' ? 'мин.' : 'раз'), step: h.step || 1});
   function migrate(input) {

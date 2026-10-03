@@ -1,6 +1,7 @@
 /* Device-local reminder preferences. Closed-page alarms are delegated to the calendar. */
 (() => {
   'use strict';
+  if(window.RitmCloud?.launched)return;
   const PREF_KEY = 'ritm-reminders-v1';
   const LAST_KEY = 'ritm-reminder-last';
   const defaults = {enabled:false, time:'20:00', days:[0,1,2,3,4,5,6]};
