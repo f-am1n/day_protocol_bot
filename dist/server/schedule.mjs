@@ -1,5 +1,7 @@
+const formatters=new Map();
 export function localDate(timezone,now=Date.now()){
-  const values=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(now).map(p=>[p.type,p.value]));
+  let formatter=formatters.get(timezone);if(!formatter){formatter=new Intl.DateTimeFormat('en-GB',{timeZone:timezone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});formatters.set(timezone,formatter)}
+  const values=Object.fromEntries(formatter.formatToParts(now).map(p=>[p.type,p.value]));
   return {date:`${values.year}-${values.month}-${values.day}`,time:`${values.hour}:${values.minute}`};
 }
 export function validateSettings(s){

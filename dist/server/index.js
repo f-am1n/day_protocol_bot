@@ -28,7 +28,7 @@ async function webhook(request,env){
   const id=String(from.id);let a=await store.account(id);await store.chat(id,id);a.chat_id=id;
   if(cb){
     const [action,date,habitId,...extra]=String(cb.data||'').split('|');
-    if(extra.length||!['p','c'].includes(action)||date!==localDate(a.timezone).date){await botCall(env,'answerCallbackQuery',{callback_query_id:cb.id,text:'Откройте актуальный список: /today'});return json({ok:true})}
+    if(extra.length||!['p','c'].includes(action)||(!R.isDate(date)||date>localDate(a.timezone).date||date<R.shift(localDate(a.timezone).date,-1))){await botCall(env,'answerCallbackQuery',{callback_query_id:cb.id,text:'Откройте актуальный список: /today'});return json({ok:true})}
     for(let attempt=0;attempt<3;attempt++){
       if(await store.seen(id,cb.id))break;
       a=await store.get(id);const s=JSON.parse(a.state),h=s.habits.find(h=>h.id===habitId);
@@ -62,12 +62,12 @@ export async function dispatchReminders(env,now=Date.now()){
   const store=new Store(env.DB);
   const due=await env.DB.prepare('SELECT * FROM telegram_accounts WHERE enabled=1 AND next_at<=? ORDER BY next_at LIMIT 50').bind(now).all();
   for(const a of due.results){
-    const next=nextReminder(settings(a),now),day=localDate(a.timezone,now).date;
+    const next=nextReminder(settings(a),now),day=localDate(a.timezone,a.next_at).date;
     // Claim before sending: simultaneous runners cannot send duplicates. No blind retries after an ambiguous Telegram timeout.
     const claim=await env.DB.prepare('UPDATE telegram_accounts SET next_at=?,last_delivery=? WHERE id=? AND next_at=? AND enabled=1').bind(next,day,a.id,a.next_at).run();
-    if(!claim.meta.changes||!a.chat_id||a.last_delivery===day||now-a.next_at>15*60000)continue;
+    if(!claim.meta.changes||!a.chat_id||a.last_delivery===day||now-a.next_at>70*60000)continue;
     const state=JSON.parse(a.state);if(!state.habits.some(h=>R.scheduled(state,h,day)&&!R.done(state,h,day)))continue;
-    try{await botCall(env,'sendMessage',{chat_id:a.chat_id,...todayMessage(a,env,now)})}catch(e){console.warn('Reminder delivery failed',e.message);if(e.message==='BOT_403')await env.DB.prepare('UPDATE telegram_accounts SET enabled=0,next_at=NULL WHERE id=?').bind(a.id).run()}
+    try{await botCall(env,'sendMessage',{chat_id:a.chat_id,...todayMessage(a,env,a.next_at)})}catch(e){console.warn('Reminder delivery failed',e.message);if(e.message==='BOT_403')await env.DB.prepare('UPDATE telegram_accounts SET enabled=0,next_at=NULL WHERE id=?').bind(a.id).run()}
   }
 }
 export default {

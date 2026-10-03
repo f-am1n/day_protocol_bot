@@ -46,7 +46,7 @@ window.RitmCloud=(()=>{
         dialog.querySelector('[name=timezone]').value=preferences.timezone;
         dialog.querySelector('[name=enabled]').checked=preferences.enabled;
         dialog.querySelector('[name=enabled]').disabled=!config.remindersReady;
-        dialog.querySelector('#telegram-reminder-info').textContent=!config.remindersReady?'Автоматическая отправка ещё подключается. Список привычек уже доступен в боте по команде /today.':!data.botStarted?'Нажмите «Старт» в боте, чтобы он мог присылать напоминания.':'Бот напомнит, даже когда приложение закрыто.';
+        dialog.querySelector('#telegram-reminder-info').textContent=!config.remindersReady?'Автоматическая отправка ещё подключается. Список привычек уже доступен в боте по команде /today.':!data.botStarted?'Нажмите «Старт» в боте, чтобы он мог присылать напоминания.':'Бот напомнит, даже когда приложение закрыто. Проверка раз в час: доставка может задержаться до часа после выбранного времени.';
         dialog.querySelector('#telegram-days').innerHTML=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map((name,i)=>`<label><input type="checkbox" value="${i}" ${preferences.days.includes(i)?'checked':''}><span>${name}</span></label>`).join('');
       }catch(err){dialog.querySelector('#telegram-reminder-info').textContent=err.message}
     });
