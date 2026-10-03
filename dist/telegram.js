@@ -12,7 +12,7 @@ window.RitmCloud=(()=>{
   }
   function accept(data){revision=data.revision;preferences=data.settings;ready=true;return data.state}
   async function load(){
-    if(!active)throw Error('Откройте «Ритм» кнопкой в @day_protocol_bot.');
+    if(!active)throw Error('Откройте «Day Protocol» кнопкой в @day_protocol_bot.');
     status('Загружаем ваш прогресс…');
     const data=await request('/api/state');status('Синхронизировано с Telegram');return accept(data);
   }
@@ -32,7 +32,7 @@ window.RitmCloud=(()=>{
     banner.querySelector('#cloud-draft').onclick=()=>{if(draft)download(draft,'ritm-unsaved.json')};
     document.querySelectorAll('.aside-bottom small').forEach(e=>e.textContent='Прогресс в вашем Telegram-аккаунте.');
     tg?.ready();tg?.expand();
-    if(tg?.isVersionAtLeast?.('6.1')){tg.setHeaderColor('#112342');tg.setBackgroundColor('#f4f6fa')}
+    if(tg?.isVersionAtLeast?.('6.1')){tg.setHeaderColor('#202827');tg.setBackgroundColor('#f3f5f3')}
     const insets=()=>document.documentElement.style.setProperty('--telegram-top',`${(tg?.contentSafeAreaInset?.top||0)+(tg?.safeAreaInset?.top||0)}px`);
     insets();tg?.onEvent('safeAreaChanged',insets);tg?.onEvent('contentSafeAreaChanged',insets);
     document.addEventListener('visibilitychange',refresh);tg?.onEvent('activated',refresh);setInterval(refresh,15000);

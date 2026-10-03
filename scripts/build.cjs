@@ -1,6 +1,6 @@
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist'),server=path.join(dist,'server');fs.mkdirSync(server,{recursive:true});
-const types={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webmanifest':'application/manifest+json'};
+const types={'.svg':'image/svg+xml','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webmanifest':'application/manifest+json'};
 const assets={};for(const f of fs.readdirSync(dist)){const ext=path.extname(f);if(types[ext]&&fs.statSync(path.join(dist,f)).isFile())assets['/'+f]={type:types[ext],data:fs.readFileSync(path.join(dist,f)).toString('base64')}}
 fs.writeFileSync(path.join(server,'assets.mjs'),'export const assets='+JSON.stringify(assets)+';');
 for(const f of ['auth.mjs','store.mjs','schedule.mjs'])fs.copyFileSync(path.join(root,'server',f),path.join(server,f));

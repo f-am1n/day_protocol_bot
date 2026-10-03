@@ -1,16 +1,26 @@
 {
   "id": "/",
-  "name": "Ритм — трекер привычек",
-  "short_name": "Ритм",
+  "name": "Day Protocol — трекер привычек",
+  "short_name": "Day Protocol",
   "description": "Ваши привычки, прогресс и напоминания в одном месте.",
   "lang": "ru",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f6f8fc",
-  "theme_color": "#245eea",
+  "background_color": "#f3f5f3",
+  "theme_color": "#202827",
   "icons": [
-    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
-    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }

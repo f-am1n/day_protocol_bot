@@ -11,7 +11,7 @@ export async function botCall(env,method,body){
   const response=await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/${method}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(10000)});
   const data=await response.json();if(!data.ok)throw Error(`BOT_${data.error_code||response.status}`);return data.result;
 }
-const openButton=env=>({text:'Открыть Ритм',web_app:{url:env.APP_URL}});
+const openButton=env=>({text:'Открыть Day Protocol',web_app:{url:env.APP_URL}});
 export function todayMessage(a,env,now=Date.now()){
   const state=JSON.parse(a.state),date=localDate(a.timezone,now).date;
   const habits=state.habits.filter(h=>R.scheduled(state,h,date));
@@ -74,6 +74,13 @@ export default {
   async fetch(request,env){
     try{
       const path=new URL(request.url).pathname;
+      if(path==='/api/admin/telegram-brand'&&request.method==='POST'){
+        if(!env.REMINDER_RUNNER_SECRET||!safeEqual(request.headers.get('Authorization'),`Bearer ${env.REMINDER_RUNNER_SECRET}`))return json({error:'Forbidden'},403);
+        await botCall(env,'setMyName',{name:'Day Protocol'});
+        await botCall(env,'setChatMenuButton',{menu_button:{type:'web_app',text:'Открыть Day Protocol',web_app:{url:env.APP_URL}}});
+        await botCall(env,'setMyDescription',{description:'Day Protocol — ваш план на каждый день. Привычки, таймер и статистика внутри Telegram. Откройте приложение или используйте /today, чтобы отметить прогресс.'});
+        return json({ok:true,name:'Day Protocol'});
+      }
       if(path==='/api/telegram/webhook'&&request.method==='POST')return await webhook(request,env);
       if(path==='/api/reminders/tick'&&request.method==='POST'){
         if(!env.REMINDER_RUNNER_SECRET||!safeEqual(request.headers.get('Authorization'),`Bearer ${env.REMINDER_RUNNER_SECRET}`))return json({error:'Forbidden'},403);

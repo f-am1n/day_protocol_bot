@@ -41,7 +41,7 @@
     $('#enable-reminders').hidden=allowed&&prefs.enabled;
     $('#disable-reminders').hidden=!prefs.enabled;
     $('#test-reminder').disabled=!allowed;
-    if (ios&&!standalone()) status('На iPhone и iPad сначала откройте сайт в Safari → «Поделиться» → «На экран Домой». Затем запустите Ритм с иконки.');
+    if (ios&&!standalone()) status('На iPhone и iPad сначала откройте сайт в Safari → «Поделиться» → «На экран Домой». Затем запустите Day Protocol с иконки.');
     else if (!supported()) status('Этот браузер не поддерживает системные уведомления. Откройте сайт в Safari, Chrome или Edge либо используйте календарь.');
     else if (Notification.permission==='denied') status('Уведомления заблокированы. Разрешите их в настройках сайта в браузере.');
     else if (allowed&&prefs.enabled) status(`Включено на этом устройстве: ${prefs.time}. Сайт должен оставаться открытым и активным.`);
@@ -73,7 +73,7 @@
   $('#disable-reminders').onclick=()=>{if(savePrefs({...prefs,enabled:false})){renderSettings();status('Напоминания браузера выключены. Событие календаря, если вы его импортировали, удаляется в самом календаре.')}};
   async function show(body,tag) {
     const reg=await worker();
-    await reg.showNotification('Ритм · время для себя', {body,tag,icon:'./icon-192.png',badge:'./icon-192.png',data:{url:new URL('./',location.href).href}});
+    await reg.showNotification('Day Protocol · время для себя', {body,tag,icon:'./icon-192.png',badge:'./icon-192.png',data:{url:new URL('./',location.href).href}});
   }
   $('#test-reminder').onclick=async()=>{
     $('#test-reminder').disabled=true;
@@ -96,7 +96,7 @@
       let before;
       try {before=localStorage.getItem(LAST_KEY);if(before===marker)return;localStorage.setItem(LAST_KEY,marker);}
       catch {return;}
-      try {await show(`Сегодня ещё осталось: ${pending.length}. Откройте Ритм и сделайте один маленький шаг.`,`ritm-${date}`);}
+      try {await show(`Сегодня ещё осталось: ${pending.length}. Откройте Day Protocol и сделайте один маленький шаг.`,`ritm-${date}`);}
       catch {try{if(localStorage.getItem(LAST_KEY)===marker){if(before)localStorage.setItem(LAST_KEY,before);else localStorage.removeItem(LAST_KEY)}}catch{}}
     };
     try {if(navigator.locks?.request)await navigator.locks.request('ritm-reminder',send);else await send();}finally{running=false;}
@@ -107,7 +107,7 @@
     for(let i=0;i<8;i++){if(start>now&&p.days.includes((start.getDay()+6)%7))break;start.setDate(start.getDate()+1);}
     const local=d=>R.key(d).replaceAll('-','')+'T'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+'00';
     const stamp=now.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
-    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ritm//Habit reminders//RU','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:ritm-daily-${p.time.replace(':','')}-${p.days.join('')}@${location.hostname}`,`DTSTAMP:${stamp}`,`DTSTART:${local(start)}`,'DURATION:PT10M',`RRULE:FREQ=WEEKLY;BYDAY=${p.days.map(d=>['MO','TU','WE','TH','FR','SA','SU'][d]).join(',')}`,'SUMMARY:Время для привычек · Ритм',`DESCRIPTION:Откройте трекер и отметьте прогресс. ${new URL('./',location.href).href}`,`URL:${new URL('./',location.href).href}`,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Время для привычек','TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'];
+    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ritm//Habit reminders//RU','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:ritm-daily-${p.time.replace(':','')}-${p.days.join('')}@${location.hostname}`,`DTSTAMP:${stamp}`,`DTSTART:${local(start)}`,'DURATION:PT10M',`RRULE:FREQ=WEEKLY;BYDAY=${p.days.map(d=>['MO','TU','WE','TH','FR','SA','SU'][d]).join(',')}`,'SUMMARY:Время для привычек · Day Protocol',`DESCRIPTION:Откройте трекер и отметьте прогресс. ${new URL('./',location.href).href}`,`URL:${new URL('./',location.href).href}`,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Время для привычек','TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'];
     // RFC 5545: fold by UTF-8 octets without splitting Unicode characters.
     return lines.map(line=>{let result='',bytes=0;for(const ch of line){const n=new TextEncoder().encode(ch).length;if(bytes+n>75){result+='\r\n ';bytes=1;}result+=ch;bytes+=n;}return result;}).join('\r\n')+'\r\n';
   }
@@ -120,7 +120,7 @@
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});
   $('#install-app').onclick=async()=>{
     if(installPrompt){const event=installPrompt;installPrompt=null;await event.prompt();await event.userChoice;}
-    else status(ios?'Safari → «Поделиться» → «На экран Домой». Запускайте Ритм с новой иконки.':'Откройте меню браузера и выберите «Установить приложение» или «Добавить на главный экран», если этот пункт доступен.');
+    else status(ios?'Safari → «Поделиться» → «На экран Домой». Запускайте Day Protocol с новой иконки.':'Откройте меню браузера и выберите «Установить приложение» или «Добавить на главный экран», если этот пункт доступен.');
   };
   window.addEventListener('appinstalled',()=>{$('#install-app').hidden=true;});
   window.addEventListener('storage',e=>{if(e.key===PREF_KEY){readPrefs();if($('#reminders-dialog').open)renderSettings()}});
