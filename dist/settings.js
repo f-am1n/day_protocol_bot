@@ -1,6 +1,16 @@
 /* Keep secondary data actions one step away from the daily workspace. */
 (() => {
   const settings = document.querySelector('#app-settings');
+  const language = document.querySelector('#app-language');
+  language.value = DayLanguage.current;
+  language.addEventListener('change', async () => {
+    const next = language.value;
+    language.disabled = true;
+    try {
+      if (window.RitmCloud?.launched && !await transact(s => { s.language = next; })) { language.value = DayLanguage.current; return; }
+      DayLanguage.navigate(next);
+    } finally { language.disabled = false; }
+  });
   document.querySelector('[data-settings]').addEventListener('click', () => {
     document.querySelector('#settings-storage').textContent = window.RitmCloud?.launched
       ? 'Прогресс сохраняется в вашем Telegram-аккаунте. Копию можно скачать в любое время.'

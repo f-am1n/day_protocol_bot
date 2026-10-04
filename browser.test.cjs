@@ -4,7 +4,7 @@ const R=require('./dist/core.js');
 (async()=>{
   const browser=await chromium.launch({headless:true,channel:'msedge'});
   try {
-    const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[];
+    const context=await browser.newContext({locale:'ru-RU',viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[];
     page.on('pageerror',e=>errors.push(e.message));
     await page.addInitScript(()=>{document.modelContext={registerTool:tool=>{window.registeredTool=tool}}});
     await page.goto('http://127.0.0.1:4173');

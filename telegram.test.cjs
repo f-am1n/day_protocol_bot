@@ -38,3 +38,23 @@ test('overlapping reminder runners deliver once, completed days stay quiet',asyn
   const {dispatchReminders}=await import('./dist/server/index.js');const {Store}=await import('./server/store.mjs');const env={DB:database(),TELEGRAM_BOT_TOKEN:secret,APP_URL:'https://example.com',REMINDER_SCHEDULER_ENABLED:'true'};const store=new Store(env.DB),now=Date.now();await store.account('101');await store.chat('101','101');await store.save('101',{version:2,habits:[habit()],logs:{}},0);await store.settings('101',{timezone:'UTC',time:'20:00',days:[0,1,2,3,4,5,6],enabled:true,nextAt:now-60000});
   const original=global.fetch;let sends=0;global.fetch=async()=>{sends++;return new Response(JSON.stringify({ok:true,result:true}))};try{await dispatchReminders(env,now);await dispatchReminders(env,now);assert.equal(sends,1)}finally{global.fetch=original}
 });
+
+test('bot detects English, persists language choice and localizes reminders without changing habit names',async()=>{
+  const {default:worker,todayMessage}=await import('./dist/server/index.js');const {Store}=await import('./server/store.mjs');
+  const env={DB:database(),TELEGRAM_BOT_TOKEN:secret,TELEGRAM_WEBHOOK_SECRET:hook,APP_URL:'https://example.com/?telegram=1'};
+  const store=new Store(env.DB);await store.account('101');const original=global.fetch,sent=[];
+  global.fetch=async(url,options)=>{sent.push(JSON.parse(options.body));return new Response(JSON.stringify({ok:true,result:true}))};
+  const send=update=>worker.fetch(new Request('https://example.com/api/telegram/webhook',{method:'POST',headers:{'X-Telegram-Bot-Api-Secret-Token':hook},body:JSON.stringify(update)}),env);
+  try{
+    const message={from:{id:101,language_code:'en'},chat:{id:101,type:'private'},text:'/start'};
+    assert.equal((await send({message})).status,200);assert.match(sent.at(-1).text,/No habits/);assert.equal(JSON.parse((await store.get('101')).state).language,'en');
+    message.text='/language';await send({message});assert.equal(sent.at(-1).reply_markup.inline_keyboard[0][1].text,'English');
+    await send({callback_query:{id:'language-ru',from:message.from,message:{message_id:1,chat:message.chat},data:'language|ru'}});
+    assert.equal(JSON.parse((await store.get('101')).state).language,'ru');message.text='/today';await send({message});assert.match(sent.at(-1).text,/На сегодня/);
+    const a=await store.get('101'),s=JSON.parse(a.state);s.language='en';s.habits=[habit()];await store.save('101',s,a.revision);
+    const text=todayMessage(await store.get('101'),env).text;assert.match(text,/Your habits for/);assert.match(text,/Чтение/);
+    const auth=await signed(101);const response=await worker.fetch(new Request('https://example.com/api/state',{method:'PUT',headers:{'X-Telegram-Init-Data':auth,'Content-Type':'application/json','Accept-Language':'en'},body:JSON.stringify({revision:0,state:s})}),env);
+    assert.equal(response.status,409);assert.match((await response.json()).error,/another device/);
+    assert.equal(R.validate({...s,language:'xx'}),false);
+  }finally{global.fetch=original}
+});

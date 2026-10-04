@@ -6,7 +6,7 @@ window.RitmCloud=(()=>{
   let revision=0,ready=false,busy=false,preferences=null,draft=null,config=null;
   const status=message=>{const el=document.querySelector('#cloud-status');if(el)el.textContent=message};
   async function request(path,method='GET',body){
-    const r=await fetch(path,{method,headers:{'X-Telegram-Init-Data':tg?.initData||'','Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(15000)});
+    const r=await fetch(path,{method,headers:{'X-Telegram-Init-Data':tg?.initData||'','Content-Type':'application/json','Accept-Language':document.documentElement.lang},body:body===undefined?undefined:JSON.stringify(body),cache:'no-store',signal:AbortSignal.timeout(15000)});
     let data;try{data=await r.json()}catch{throw Error('Сервер пока недоступен. Попробуйте ещё раз.')}
     if(!r.ok){const e=Error(data.error||'Не удалось связаться с сервером.');e.status=r.status;e.data=data;throw e}return data;
   }

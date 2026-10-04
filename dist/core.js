@@ -25,6 +25,7 @@
   }
   function validate(s, asOf = today()) {
     if (!object(s) || (s.version !== undefined && s.version !== 2) || !Array.isArray(s.habits) || s.habits.length > 500 || !object(s.logs)) return false;
+    if (s.language !== undefined && !['ru', 'en'].includes(s.language)) return false;
     const ids = new Set();
     for (const h of s.habits) {
       if (!object(h) || typeof h.id !== 'string' || !/^[a-zA-Z0-9-]{1,100}$/.test(h.id) || ['constructor', 'prototype', '__proto__'].includes(h.id) || ids.has(h.id)) return false;

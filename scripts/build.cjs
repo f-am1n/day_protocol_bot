@@ -1,3 +1,4 @@
+require('./localize.cjs');
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),dist=path.join(root,'dist'),server=path.join(dist,'server');fs.mkdirSync(server,{recursive:true});
 const types={'.svg':'image/svg+xml','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webmanifest':'application/manifest+json'};

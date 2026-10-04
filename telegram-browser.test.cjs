@@ -1,7 +1,7 @@
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'C:/Users/Muhammadamin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const assert=require('node:assert/strict');
 (async()=>{const browser=await chromium.launch({headless:true,channel:'msedge'});try{
-  const context=await browser.newContext({viewport:{width:390,height:844}});let state={version:2,habits:[],logs:{}},revision=0,conflict=false;const errors=[];
+  const context=await browser.newContext({locale:'ru-RU',viewport:{width:390,height:844}});let state={version:2,habits:[],logs:{}},revision=0,conflict=false;const errors=[];
   await context.route('https://telegram.org/js/telegram-web-app.js',r=>r.fulfill({body:'',contentType:'text/javascript'}));
   await context.addInitScript(()=>{window.Telegram={WebApp:{initData:'simulated-test-session',ready(){},expand(){},onEvent(){},isVersionAtLeast(){return false},HapticFeedback:{notificationOccurred(){}}}}});
   await context.route('**/api/state',async route=>{const req=route.request();if(req.method()==='PUT'){const body=req.postDataJSON();if(conflict){conflict=false;return route.fulfill({status:409,json:{error:'Прогресс изменился на другом устройстве. Повторите действие.',state,revision}})}assert.equal(body.revision,revision);state=body.state;revision++}await route.fulfill({json:{state,revision,settings:{enabled:false,time:'20:00',timezone:'Asia/Tashkent',days:[0,1,2,3,4,5,6]},botStarted:true}})});

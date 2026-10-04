@@ -38,7 +38,7 @@ document.addEventListener('click',async e=>{const b=e.target.closest('button');i
 document.addEventListener('change',e=>{if(e.target.id==='stats-habit'){statsHabit=e.target.value;render()}});$('.brand').onclick=e=>{e.preventDefault();view='today';selected=R.today();render()};
 window.addEventListener('storage',e=>{if(RitmCloud.launched||e.key!==KEY)return;try{state=e.newValue?R.migrate(JSON.parse(e.newValue)):{version:2,habits:[],logs:{}};blocked=false;render()}catch{blocked=true;render()}});
 function rollover(){const now=R.today();if(now!==lastDay){if(selected===lastDay)selected=now;month=now.slice(0,7);lastDay=now;render()}}document.addEventListener('visibilitychange',()=>{if(!document.hidden)rollover()});setInterval(rollover,30000);
-async function startCloud(){blocked=true;document.documentElement.classList.add('cloud-loading');try{state=R.migrate(await RitmCloud.load());blocked=false;render()}catch(e){RitmCloud.status(e.message);notify(e.message)}finally{document.documentElement.classList.remove('cloud-loading')}}
+async function startCloud(){blocked=true;document.documentElement.classList.add('cloud-loading');try{state=R.migrate(await RitmCloud.load());blocked=false;if(state.language&&state.language!==DayLanguage.current){DayLanguage.navigate(state.language);return}render()}catch(e){RitmCloud.status(e.message);notify(e.message)}finally{document.documentElement.classList.remove('cloud-loading')}}
 window.addEventListener('ritm:cloud-update',e=>{state=R.migrate(e.detail);render()});
 window.addEventListener('ritm:cloud-conflict',e=>{state=R.migrate(e.detail);render()});
 window.addEventListener('ritm:cloud-retry',()=>{if(!window.RitmWriting)startCloud()});
