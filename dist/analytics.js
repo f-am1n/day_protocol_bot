@@ -1,7 +1,7 @@
 /* Analytics use closed calendar weeks so an unfinished week is never a failure. */
 (function(root,factory){
   if(typeof module==='object'&&module.exports)module.exports=factory(require('./core.js'));
-  else root.RitmAnalytics=factory(root.Ritm);
+  else root.DayProtocolAnalytics=factory(root.DayProtocol);
 })(typeof globalThis!=='undefined'?globalThis:this,function(R){
   'use strict';
   function report(state, month, habitId='', today=R.today()){

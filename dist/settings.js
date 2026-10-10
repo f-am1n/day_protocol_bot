@@ -7,12 +7,12 @@
     const next = language.value;
     language.disabled = true;
     try {
-      if (window.RitmCloud?.launched && !await transact(s => { s.language = next; })) { language.value = DayLanguage.current; return; }
+      if (window.DayProtocolCloud?.launched && !await transact(s => { s.language = next; })) { language.value = DayLanguage.current; return; }
       DayLanguage.navigate(next);
     } finally { language.disabled = false; }
   });
   document.querySelector('[data-settings]').addEventListener('click', () => {
-    document.querySelector('#settings-storage').textContent = window.RitmCloud?.launched
+    document.querySelector('#settings-storage').textContent = window.DayProtocolCloud?.launched
       ? 'Прогресс сохраняется в вашем Telegram-аккаунте. Копию можно скачать в любое время.'
       : 'Прогресс хранится в этом браузере. Копия поможет перенести его на другое устройство.';
     settings.showModal();

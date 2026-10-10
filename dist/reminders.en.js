@@ -1,9 +1,9 @@
 /* Device-local reminder preferences. Closed-page alarms are delegated to the calendar. */
 (() => {
   'use strict';
-  if(window.RitmCloud?.launched)return;
-  const PREF_KEY = 'ritm-reminders-v1';
-  const LAST_KEY = 'ritm-reminder-last';
+  if(window.DayProtocolCloud?.launched)return;
+  const PREF_KEY = 'day-protocol-reminders-v1';
+  const LAST_KEY = 'day-protocol-reminder-last';
   const defaults = {enabled:false, time:'20:00', days:[0,1,2,3,4,5,6]};
   let prefs = {...defaults}, registration = null, installPrompt = null, running = false;
   const supported = () => window.isSecureContext && 'Notification' in window && 'serviceWorker' in navigator;
@@ -77,7 +77,7 @@
   }
   $('#test-reminder').onclick=async()=>{
     $('#test-reminder').disabled=true;
-    try {await show('This is what your habit reminder will look like.','ritm-test');status('Test sent to your device. If it does not appear, check browser permissions and Do Not Disturb settings.');}
+    try {await show('This is what your habit reminder will look like.','day-protocol-test');status('Test sent to your device. If it does not appear, check browser permissions and Do Not Disturb settings.');}
     catch(e){status(e.message||'Could not show the notification.')}
     finally{$('#test-reminder').disabled=!(supported()&&Notification.permission==='granted')}
   };
@@ -96,10 +96,10 @@
       let before;
       try {before=localStorage.getItem(LAST_KEY);if(before===marker)return;localStorage.setItem(LAST_KEY,marker);}
       catch {return;}
-      try {await show(`Still remaining today: ${pending.length}. Open Day Protocol and take one small step.`,`ritm-${date}`);}
+      try {await show(`Still remaining today: ${pending.length}. Open Day Protocol and take one small step.`,`day-protocol-${date}`);}
       catch {try{if(localStorage.getItem(LAST_KEY)===marker){if(before)localStorage.setItem(LAST_KEY,before);else localStorage.removeItem(LAST_KEY)}}catch{}}
     };
-    try {if(navigator.locks?.request)await navigator.locks.request('ritm-reminder',send);else await send();}finally{running=false;}
+    try {if(navigator.locks?.request)await navigator.locks.request('day-protocol-reminder',send);else await send();}finally{running=false;}
   }
   function calendarText(p) {
     const now=new Date(),start=new Date(now),[hour,minute]=p.time.split(':').map(Number);
@@ -107,14 +107,14 @@
     for(let i=0;i<8;i++){if(start>now&&p.days.includes((start.getDay()+6)%7))break;start.setDate(start.getDate()+1);}
     const local=d=>R.key(d).replaceAll('-','')+'T'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0')+'00';
     const stamp=now.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
-    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Ritm//Habit reminders//RU','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:ritm-daily-${p.time.replace(':','')}-${p.days.join('')}@${location.hostname}`,`DTSTAMP:${stamp}`,`DTSTART:${local(start)}`,'DURATION:PT10M',`RRULE:FREQ=WEEKLY;BYDAY=${p.days.map(d=>['MO','TU','WE','TH','FR','SA','SU'][d]).join(',')}`,'SUMMARY:Time for your habits · Day Protocol',`DESCRIPTION:Open the tracker and record your progress. ${new URL('./',location.href).href}`,`URL:${new URL('./',location.href).href}`,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Time for your habits','TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'];
+    const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//DayProtocol//Habit reminders//RU','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:day-protocol-daily-${p.time.replace(':','')}-${p.days.join('')}@${location.hostname}`,`DTSTAMP:${stamp}`,`DTSTART:${local(start)}`,'DURATION:PT10M',`RRULE:FREQ=WEEKLY;BYDAY=${p.days.map(d=>['MO','TU','WE','TH','FR','SA','SU'][d]).join(',')}`,'SUMMARY:Time for your habits · Day Protocol',`DESCRIPTION:Open the tracker and record your progress. ${new URL('./',location.href).href}`,`URL:${new URL('./',location.href).href}`,'BEGIN:VALARM','ACTION:DISPLAY','DESCRIPTION:Time for your habits','TRIGGER:PT0M','END:VALARM','END:VEVENT','END:VCALENDAR'];
     // RFC 5545: fold by UTF-8 octets without splitting Unicode characters.
     return lines.map(line=>{let result='',bytes=0;for(const ch of line){const n=new TextEncoder().encode(ch).length;if(bytes+n>75){result+='\r\n ';bytes=1;}result+=ch;bytes+=n;}return result;}).join('\r\n')+'\r\n';
   }
   $('#calendar-reminder').onclick=()=>{
     const next=formPrefs();if(!next)return;
     const url=URL.createObjectURL(new Blob([calendarText(next)],{type:'text/calendar;charset=utf-8'})),a=document.createElement('a');
-    a.href=url;a.download='ritm-reminder.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    a.href=url;a.download='day-protocol-reminder.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
     status('File downloaded. Import it into your calendar and check the event time and notification. Importing again may create a duplicate. Edit or delete this reminder in your calendar.');
   };
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;});

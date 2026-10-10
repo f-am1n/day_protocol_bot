@@ -2,7 +2,7 @@
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
-  else root.Ritm = api;
+  else root.DayProtocol = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
   const key = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;

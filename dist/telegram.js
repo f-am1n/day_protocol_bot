@@ -1,5 +1,5 @@
 /* Telegram identity is verified by the server. initDataUnsafe is never used for access. */
-window.RitmCloud=(()=>{
+window.DayProtocolCloud=(()=>{
   const tg=window.Telegram?.WebApp;
   const active=!!tg?.initData;
   const launched=active||new URLSearchParams(location.search).has('telegram')||location.hash.includes('tgWebApp');
@@ -19,17 +19,17 @@ window.RitmCloud=(()=>{
   async function save(next){
     if(!ready)throw Error('Дождитесь загрузки прогресса.');busy=true;draft=structuredClone(next);status('Сохраняем…');
     try{const data=await request('/api/state','PUT',{state:next,revision,operation:crypto.randomUUID()});draft=null;status('Сохранено в Telegram');tg?.HapticFeedback?.notificationOccurred('success');return accept(data)}
-    catch(e){if(e.status===409&&e.data.state){accept(e.data);window.dispatchEvent(new CustomEvent('ritm:cloud-conflict',{detail:e.data.state}))}status('Изменение не сохранено. Повторите действие.');throw e}
+    catch(e){if(e.status===409&&e.data.state){accept(e.data);window.dispatchEvent(new CustomEvent('day-protocol:cloud-conflict',{detail:e.data.state}))}status('Изменение не сохранено. Повторите действие.');throw e}
     finally{busy=false}
   }
-  async function refresh(){if(!active||!ready||busy||document.hidden||document.querySelector('dialog[open]')||window.RitmWriting)return;try{const data=await request('/api/state');if(!busy&&!window.RitmWriting&&data.revision!==revision){window.dispatchEvent(new CustomEvent('ritm:cloud-update',{detail:accept(data)}));status('Синхронизировано с Telegram')}}catch{status('Нет связи. Новые отметки требуют интернета.')}}
+  async function refresh(){if(!active||!ready||busy||document.hidden||document.querySelector('dialog[open]')||window.DayProtocolWriting)return;try{const data=await request('/api/state');if(!busy&&!window.DayProtocolWriting&&data.revision!==revision){window.dispatchEvent(new CustomEvent('day-protocol:cloud-update',{detail:accept(data)}));status('Синхронизировано с Telegram')}}catch{status('Нет связи. Новые отметки требуют интернета.')}}
   function boot(){
     if(!launched)return;
     document.documentElement.classList.add('telegram-app');
     const banner=document.createElement('section');banner.className='cloud-bar';banner.innerHTML='<span id="cloud-status" role="status">Подключаем Telegram…</span><button id="cloud-retry" class="text-button">Обновить</button><button id="cloud-draft" class="text-button" hidden>Скачать несохранённое</button>';
     document.querySelector('main').prepend(banner);
-    banner.querySelector('#cloud-retry').onclick=()=>window.dispatchEvent(new Event('ritm:cloud-retry'));
-    banner.querySelector('#cloud-draft').onclick=()=>{if(draft)download(draft,'ritm-unsaved.json')};
+    banner.querySelector('#cloud-retry').onclick=()=>window.dispatchEvent(new Event('day-protocol:cloud-retry'));
+    banner.querySelector('#cloud-draft').onclick=()=>{if(draft)download(draft,'day-protocol-unsaved.json')};
     document.querySelectorAll('.aside-bottom small').forEach(e=>e.textContent='Прогресс в вашем Telegram-аккаунте.');
     tg?.ready();tg?.expand();
     if(tg?.isVersionAtLeast?.('6.1')){tg.setHeaderColor('#202827');tg.setBackgroundColor('#f3f5f3')}

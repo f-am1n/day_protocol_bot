@@ -7,12 +7,12 @@
     const next = language.value;
     language.disabled = true;
     try {
-      if (window.RitmCloud?.launched && !await transact(s => { s.language = next; })) { language.value = DayLanguage.current; return; }
+      if (window.DayProtocolCloud?.launched && !await transact(s => { s.language = next; })) { language.value = DayLanguage.current; return; }
       DayLanguage.navigate(next);
     } finally { language.disabled = false; }
   });
   document.querySelector('[data-settings]').addEventListener('click', () => {
-    document.querySelector('#settings-storage').textContent = window.RitmCloud?.launched
+    document.querySelector('#settings-storage').textContent = window.DayProtocolCloud?.launched
       ? 'Your progress is saved in your Telegram-account. You can download a backup at any time.'
       : 'Your progress is stored in this browser. Use a backup to move it to another device.';
     settings.showModal();

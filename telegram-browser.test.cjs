@@ -12,7 +12,7 @@ const assert=require('node:assert/strict');
   conflict=true;await p.locator('[data-plus]').click();await p.locator('#toast').filter({hasText:'другом устройстве'}).waitFor();assert.equal(await p.locator('.value-button').innerText(),'0');
   await p.locator('[data-plus]').click();await p.waitForFunction(()=>document.querySelector('.value-button')?.textContent==='5');assert.equal(state.logs[Object.keys(state.logs)[0]][state.habits[0].id],5);
   await p.locator('[data-reminders]').click();await p.locator('#telegram-settings[open]').waitFor();assert.equal(await p.locator('#reminders-dialog').getAttribute('open'),null);await p.locator('[data-close=telegram-settings]').click();
-  await p.reload();await p.waitForFunction(()=>document.querySelector('.value-button')?.textContent==='5');assert.equal(await p.evaluate(()=>localStorage.getItem('ritm-v1')),null);
+  await p.reload();await p.waitForFunction(()=>document.querySelector('.value-button')?.textContent==='5');assert.equal(await p.evaluate(()=>localStorage.getItem('day-protocol-v1')),null);
   for(const width of [320,390,768,1440]){await p.setViewportSize({width,height:900});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false)}
   await p.setViewportSize({width:390,height:844});await p.screenshot({path:'.sites-runtime/telegram-mobile.png',fullPage:true});assert.deepEqual(errors,[]);console.log('PASS Telegram UI: cloud-only saves, conflict recovery, reload, timer controls, settings, 4 viewports');
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exitCode=1});

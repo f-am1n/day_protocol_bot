@@ -7,7 +7,7 @@ async function run(){
   const config=JSON.parse(input.trim()),{token}=JSON.parse(fs.readFileSync('.sites-runtime/telegram-secret.json','utf8'));
   async function call(method,body){const r=await fetch('https://api.telegram.org/bot'+token+'/'+method,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(15000)});const j=await r.json();if(!j.ok)throw Error('Bot API failed');return j.result}
   const me=await call('getMe',{});if(me.username!=='day_protocol_bot')throw Error('Unexpected bot');
-  const origin='https://ritm-habits-amin.asilbekumirov355.chatgpt.site',url=origin+'/?telegram=1';
+  const origin=new URL(config.origin || process.env.DAY_PROTOCOL_ORIGIN).origin,url=origin+'/?telegram=1';
   const old=await call('getWebhookInfo',{});if(old.url&&old.url!==origin+'/api/telegram/webhook')throw Error('Existing webhook changed');
   await call('setWebhook',{url:origin+'/api/telegram/webhook',secret_token:config.webhookSecret,allowed_updates:['message','callback_query'],drop_pending_updates:false});
   await call('setChatMenuButton',{menu_button:{type:'web_app',text:'Открыть Day Protocol',web_app:{url}}});

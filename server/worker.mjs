@@ -3,7 +3,7 @@ import {authenticate,safeEqual} from './auth.mjs';
 import {Store} from './store.mjs';
 import {localDate,validateSettings,nextReminder} from './schedule.mjs';
 import {assets} from './assets.mjs';
-const R=globalThis.Ritm;
+const R=globalThis.DayProtocol;
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 const settings=a=>({enabled:!!a.enabled,time:a.reminder_time,days:JSON.parse(a.reminder_days),timezone:a.timezone});
 const snapshot=a=>({state:JSON.parse(a.state),revision:a.revision,settings:settings(a),botStarted:!!a.chat_id});
@@ -19,7 +19,7 @@ export function todayMessage(a,env,now=Date.now()){
   const state=JSON.parse(a.state),date=localDate(a.timezone,now).date;
   const habits=state.habits.filter(h=>R.scheduled(state,h,date));
   const remaining=habits.filter(h=>!R.done(state,h,date));
-  const text=habits.length?(textFor(a,'Ваш ритм на ','Your habits for ')+date+'\n\n')+habits.slice(0,25).map(h=>`${R.done(state,h,date)?'✓':'○'} ${h.name}: ${R.value(state,h,date)}/${R.configAt(h,date).target}`).join('\n')+(habits.length>25?textFor(a,'\nОстальные привычки — в приложении.','\nView your other habits in the app.'):''):textFor(a,'На сегодня привычек пока нет. Добавьте первую в приложении.','No habits planned for today. Add your first habit in the app.');
+  const text=habits.length?(textFor(a,'Ваши привычки на ','Your habits for ')+date+'\n\n')+habits.slice(0,25).map(h=>`${R.done(state,h,date)?'✓':'○'} ${h.name}: ${R.value(state,h,date)}/${R.configAt(h,date).target}`).join('\n')+(habits.length>25?textFor(a,'\nОстальные привычки — в приложении.','\nView your other habits in the app.'):''):textFor(a,'На сегодня привычек пока нет. Добавьте первую в приложении.','No habits planned for today. Add your first habit in the app.');
   const rows=remaining.filter(h=>h.id.length<=51).slice(0,12).map(h=>{const c=R.configAt(h,date);return [{text:(c.type==='check'?'✓ ':`+${c.step} `)+h.name.slice(0,35),callback_data:`${c.type==='check'?'c':'p'}|${date}|${h.id}`}];});
   rows.push([openButton(env,a)]);return {text,reply_markup:{inline_keyboard:rows}};
 }
@@ -143,7 +143,7 @@ export default {
       return new Response(request.method==='HEAD'?null:binary,{headers:{'Content-Type':asset.type,'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'}});
     }catch(e){
       const status=e.message==='AUTH'?401:e.message==='SIZE'?413:['BODY','SETTINGS'].includes(e.message)?400:503;
-      if(status===503)console.warn('Ritm request unavailable',e.message?.replace(/\d{5,}:[A-Za-z0-9_-]+/g,'[redacted]'));
+      if(status===503)console.warn('DayProtocol request unavailable',e.message?.replace(/\d{5,}:[A-Za-z0-9_-]+/g,'[redacted]'));
       return reply({error:status===401?'Откройте приложение заново через Telegram.':status===400?'Проверьте введённые данные.':'Сервис временно недоступен. Изменения не подтверждены.'},status);
     }
   },
